@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@android:color/holo_blue_light"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_marginTop="25dp"
+            android:layout_height="110dp"
+            android:id="@+id/warehouse_pic"
+            android:layout_width="wrap_content"
+            android:src="@drawable/warehouse"
+            />
+
+        <ListView
+            android:id="@+id/second_listView"
+            android:background="#2000"
+            android:layout_margin="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</layout>

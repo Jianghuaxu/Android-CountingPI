@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SearchView</string>
+    <string name="tasks_overview">Tasks Overview</string>
+    <string name="unsaved_task">Unsaved Tasks</string>
+</resources>

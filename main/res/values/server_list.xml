@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="servers">
+        <item>WMT201-QKX101</item>
+        <item>UYR210-QM7710</item>
+    </string-array>
+</resources>

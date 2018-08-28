@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height = "wrap_content">
+            <TextView
+                android:textColor="@color/white"
+                android:text="Handling Unit:"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/hu"
+                android:paddingLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height = "wrap_content">
+            <TextView
+                android:textColor="@color/white"
+                android:text="Product:"
+                android:paddingLeft="35dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/product"
+                android:paddingLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:textColor="@color/white"
+                android:paddingLeft="10dp"
+                android:id="@+id/productdesc"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textColor="@color/white"
+                android:text="Quantity:"
+                android:paddingLeft="35dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <android.support.design.widget.TextInputLayout
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content">
+                <EditText
+                    android:id="@+id/quantity"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/uom"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</layout>

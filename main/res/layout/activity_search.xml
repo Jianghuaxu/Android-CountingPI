@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v4.widget.DrawerLayout
+        xmlns:app = "http://schemas.android.com/apk/res-auto"
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+            <android.support.design.widget.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <android.support.v7.widget.Toolbar
+                    android:background="@color/colorPrimary"
+                    android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"/>
+            </android.support.design.widget.AppBarLayout>
+
+            <android.support.design.widget.NavigationView
+                android:id="@+id/nav_view"
+                android:layout_gravity="start"
+                app:menu="@menu/navheader"
+                app:headerLayout="@layout/nav_header"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <RelativeLayout
+                android:id="@+id/search_main"
+                android:orientation="vertical" android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ScrollView
+                    android:id="@+id/search_criteria"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="match_parent">
+                        <android.support.design.widget.TextInputLayout
+                            android:paddingLeft="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <EditText
+                                android:id="@+id/warehouse_number"
+                                android:hint="Warehouse Number(Mandatory)"
+                                android:inputType="text"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+                        </android.support.design.widget.TextInputLayout>
+                        <android.support.design.widget.TextInputLayout
+                            android:paddingLeft="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <EditText
+                                android:id="@+id/warehouse_order"
+                                android:hint="Warehouse Order(Optional)"
+                                android:imeOptions="actionUnspecified"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+                        </android.support.design.widget.TextInputLayout>
+                        <android.support.design.widget.TextInputLayout
+                            android:paddingLeft="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <EditText
+                                android:id="@+id/storage_type"
+                                android:hint="Storage Type(Optional)"
+                                android:imeOptions="actionUnspecified"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+                        </android.support.design.widget.TextInputLayout>
+                        <android.support.design.widget.TextInputLayout
+                            android:paddingLeft="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <EditText
+                                android:id="@+id/aisle"
+                                android:hint="Aisle(Optional)"
+                                android:imeOptions="actionUnspecified"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+                        </android.support.design.widget.TextInputLayout>
+                    </LinearLayout>
+                </ScrollView>
+                <Button
+                    android:id="@+id/search_pi"
+                    android:textColorHighlight="@color/white"
+                    android:background="@color/pink"
+                    android:layout_marginLeft="70dp"
+                    android:layout_marginRight="70dp"
+                    android:text="Search"
+                    android:layout_marginBottom="100dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="120dp"/>
+
+            </RelativeLayout>
+    </android.support.v4.widget.DrawerLayout>
+
+</layout>
