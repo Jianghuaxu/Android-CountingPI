@@ -23,7 +23,7 @@
             android:layout_below="@id/search"
             android:padding="@dimen/activity_horizontal_margin"
             android:textSize="25dp"
-            android:textColor="@color/bluelight"
+            android:textColor="#427CAC"
             android:text="Physical Inventory Documents"/>
 
 

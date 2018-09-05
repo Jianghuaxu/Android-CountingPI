@@ -24,10 +24,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import gson.PIHeaders;
+import gson.PIItems;
 import gson.PIWOList;
+import model.StorageBin;
+import model.WarehouseOrderCount;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -41,6 +45,13 @@ public class MainActivity extends AppCompatActivity {
     PIDoc piDocAdapterEntry;
     AlertDialog alertDialog;
     ProgressDialog progressDialog;
+
+    //handle wolist httprequest
+    int docListSize = 0;
+    final List<PIWOList> woList = new ArrayList<>();
+
+    //handle piItems List httprequest
+    final ArrayList<WarehouseOrderCount> woCountList = new ArrayList<>();
 
     ArrayList<PIDoc> arrayList= new ArrayList<>();
     ArrayList<PIHeaders> piHeaders = new ArrayList<>();
@@ -130,7 +141,9 @@ public class MainActivity extends AppCompatActivity {
             for(PIHeaders piHeader: piHeaders) {
                 PIDoc piDoc = new PIDoc(piHeader.PhysicalInventoryDocumentNumber, 1);
                 arrayList.add(piDoc);
+                getWOList(piHeader.PhysicalInventoryDocumentNumber);
             }
+
             adapter= new PIDocAdapter(MainActivity.this, R.layout.pidoclist_item, arrayList);
             activityMainBinding.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -138,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, WOListActivity.class);
                     String url = HttpUtil.getWOListUrl(piHeaders.get(i).PhysicalInventoryDocumentNumber);
                     intent.putExtra("url", url);
+                    intent.putExtra("handleLocal", "false");
                     startActivity(intent);
                 }
             });
@@ -160,6 +174,151 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getWOList(String piDocNumber) {
+        HttpUtil.sendOkHttpRequest(HttpUtil.getWOListUrl(piDocNumber) + "&$format=json", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handleWOListResponse(true, null);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    handleWOListResponse(false, responseData);
+                } else {
+                    handleWOListResponse(true, null);
+                }
+
+            }
+        });
+    }
+
+    private void handleWOListResponse(boolean error, String responseData) {
+        docListSize++;
+        if(!error) {
+            try{
+                JSONObject Jobject = new JSONObject(responseData);
+                JSONObject d_results = Jobject.getJSONObject("d");
+                JSONArray results = d_results.getJSONArray("results");
+                String wo_content;
+                PIWOList wo;
+                for(int i = 0; i< results.length(); i++) {
+                    wo_content = results.getJSONObject(i).toString();
+                    wo = new Gson().fromJson(wo_content, PIWOList.class);
+                    woList.add(wo);
+                }
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        if(docListSize == piHeaders.size()) {
+            runFinalGetWOListRequest();
+        }
+    }
+
+    private void runFinalGetWOListRequest() {
+        docListSize = 0;
+        String piItemURL;
+        //continue to get the first 5 warehouse orders's PI Items and meanwhile remove them from the wolist
+        for(PIWOList wo: woList) {
+            //get all the pi items in current wo
+            piItemURL = HttpUtil.getPIItemURL(String.valueOf(wo.PhysicalInventoryDocumentGUID), wo.WarehouseOrder);
+            getPIItemsWithOKHttp(piItemURL, wo.WarehouseOrder);
+        }
+
+    }
+
+    private void getPIItemsWithOKHttp (String url, String woNumber) {
+        final String wo_number = woNumber;
+        // get all PI Items(Storage Bins) in one WO, results could be saved in class WarehouseOrderCount
+        HttpUtil.sendOkHttpRequest(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handlePIItemsListResponse(true, null, null);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    handlePIItemsListResponse(false, responseData, wo_number);
+                } else {
+                    handlePIItemsListResponse(true, null, null);
+                }
+            }
+        });
+    }
+
+    private void handlePIItemsListResponse(boolean error, String responseData, String woNumber) {
+        //get all warehouse Orders with their storage bins (containing all pi Items for counting)
+        docListSize++;
+        final String wo_number = woNumber;
+        if(!error) {
+            try{
+                final ArrayList<PIItems> piItemList = new ArrayList<>();
+                JSONObject Jobject = new JSONObject(responseData);
+                JSONObject d_results = Jobject.getJSONObject("d");
+                JSONArray results = d_results.getJSONArray("results");
+                String wo_content;
+                PIItems piItem;
+                for(int i = 0; i< results.length(); i++) {
+                    wo_content = results.getJSONObject(i).toString();
+                    piItem = new Gson().fromJson(wo_content, PIItems.class);
+                    piItemList.add(piItem);
+                }
+                ArrayList<StorageBin> storageBins = convertPIItemsToStorageBins(piItemList);
+                WarehouseOrderCount woC = new WarehouseOrderCount();
+                woC.WarehouseOrderNumber = wo_number;
+                woC.binArrayList = storageBins;
+                woCountList.add(woC);
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        if(docListSize == woList.size()) {
+            runFinalGetPIItemsListRequest();
+        }
+    }
+
+    private ArrayList<StorageBin> convertPIItemsToStorageBins(ArrayList<PIItems> piItems) {
+        ArrayList<StorageBin> storageBins = new ArrayList<>();
+        ArrayList<PIItems> itemsTmp = new ArrayList<>();
+        ArrayList<String> binNumbers = new ArrayList<>();
+        String binNumber = null;
+        for(PIItems item : piItems) {
+            binNumber = item.StorageBin;
+            if(!binNumbers.contains(binNumber)){
+                if(itemsTmp.size() > 0){
+                    ArrayList<PIItems> itemsForNewBin = new ArrayList<>();
+                    itemsForNewBin.addAll(itemsTmp);
+                    StorageBin binNew = new StorageBin();
+                    binNew.binEmpty = itemsForNewBin.get(0).StorageBinEmpty;
+                    binNew.storageBin = binNumbers.get(binNumbers.size() - 1);
+                    binNew.piItemsInBin = itemsForNewBin;
+                    storageBins.add(binNew);
+                    itemsTmp.clear();
+                }
+                binNumbers.add(binNumber);
+            }
+            itemsTmp.add(item);
+        }
+        if(itemsTmp.size() > 0 && binNumber != null) {
+            StorageBin binLast = new StorageBin();
+            //the last storage bin should also be added into list storageBins
+            binLast.storageBin = binNumber;
+            binLast.piItemsInBin = itemsTmp;
+            storageBins.add(binLast);
+        }
+        return storageBins;
+    }
+
+    private void runFinalGetPIItemsListRequest() {
+        Log.d("PIItems", String.valueOf(woCountList.size()));
+    }
+
     public void initDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
@@ -178,17 +337,6 @@ public class MainActivity extends AppCompatActivity {
         alertDialog = builder.create();
     }
 
-    public void initProcessDialog(){
-        progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setTitle("Retrieving PI Items from backend, please wait...");
-        progressDialog.setMessage("Loading...");
-        progressDialog.setCancelable(true);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -199,13 +347,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showDialog(String arg) {
-        if(alertDialog == null) {
-            return;
-        }
-        alertDialog.setTitle("PI Doc: " + arg + " is clicked, do you want to count it?");
-        alertDialog.show();
-        setTitle(arg);
+    public void initProcessDialog(){
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setTitle("Retrieving PI Items from backend, please wait...");
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(true);
     }
-
-    }
+}

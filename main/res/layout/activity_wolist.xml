@@ -1,24 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout
-        android:orientation="vertical"
-        android:background="@android:color/holo_blue_light"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <ImageView
-            android:layout_marginTop="25dp"
-            android:layout_height="110dp"
-            android:id="@+id/warehouse_pic"
-            android:layout_width="wrap_content"
-            android:src="@drawable/warehouse"
-            />
 
-        <ListView
-            android:id="@+id/second_listView"
-            android:background="#2000"
-            android:layout_margin="15dp"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_wolist"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="55dp"
+            android:background="#427CAC"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    </android.support.design.widget.AppBarLayout>
 
-    </LinearLayout>
+    <RelativeLayout
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.SearchView
+                android:id="@+id/search_wo"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/wo_list_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:textSize="25dp"
+                android:layout_margin="15dp"
+                android:textColor="@color/bluelight"
+                android:text="Warehouse Orders(0)"/>
+
+            <ListView
+                android:id="@+id/second_listView"
+                android:background="#1000"
+                android:layout_margin="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <Button
+            android:id="@+id/save_unsaved_wo"
+            android:visibility="invisible"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="#427CAC"
+            android:textAllCaps="false"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:text="Save all" />
+    </RelativeLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
 </layout>

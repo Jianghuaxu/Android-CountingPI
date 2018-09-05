@@ -8,11 +8,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -34,8 +36,6 @@ public class LogonActivity extends AppCompatActivity {
     //UI References
     private EditText mUsernameView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
 
     //handle http request
     String username, password;
@@ -48,6 +48,8 @@ public class LogonActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.initial_logon);
+
+        //handle Network-communication
         setClient(this);
 
         Spinner serverList = (Spinner) findViewById(R.id.server_list);
@@ -72,8 +74,6 @@ public class LogonActivity extends AppCompatActivity {
 
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_prgress);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -138,7 +138,7 @@ public class LogonActivity extends AppCompatActivity {
         View focusView = null;
 
         //check if valid password
-        if(TextUtils.isEmpty(password) || !isPasswordValid(password)) {
+        if(TextUtils.isEmpty(password)) {
             if(TextUtils.isEmpty(password)) {
                 focusView = mPasswordView;
             } else {
@@ -150,6 +150,7 @@ public class LogonActivity extends AppCompatActivity {
         if(cancel) {
             focusView.requestFocus();
         } else {
+            hideKeyboard();
             showProcessDialog(true);
             HttpUtil.sendOkHttpRequestLogon(new Callback() {
                 @Override
@@ -158,6 +159,7 @@ public class LogonActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            HttpUtil.afterRequestFailed(LogonActivity.this);
                             mUsernameView.requestFocus();
                             showProcessDialog(false);
                         }
@@ -169,14 +171,26 @@ public class LogonActivity extends AppCompatActivity {
                 public void onResponse(Call call, final Response response) throws IOException {
                     ResponseBody respBody = response.body();
                     try{
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                HttpUtil.setToken(response.header("x-csrf-token"));
-                                showProcessDialog(false);
-                                onLogonSuccess();
-                            }
-                        });
+                        if(response.isSuccessful()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    HttpUtil.setToken(response.header("x-csrf-token"));
+                                    showProcessDialog(false);
+                                    onLogonSuccess();
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    HttpUtil.afterRequestFailed(LogonActivity.this);
+                                    mUsernameView.requestFocus();
+                                    showProcessDialog(false);
+                                }
+                            });
+                        }
+
                     } finally {
                         respBody.close();
                     }
@@ -190,6 +204,8 @@ public class LogonActivity extends AppCompatActivity {
     private void showProcessDialog(Boolean showFlag) {
         if(processDialog == null) {
             processDialog = new ProgressDialog(this);
+            processDialog.setMessage("Verifying Authentication, please wait...");
+            processDialog.setCancelable(true);
         }
         if(showFlag) {
             processDialog.show();
@@ -222,8 +238,13 @@ public class LogonActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isPasswordValid(String password) {
-        return password.length() > 4;
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(imm.isActive()) {
+            if (this.getCurrentFocus().getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
     }
 
 }

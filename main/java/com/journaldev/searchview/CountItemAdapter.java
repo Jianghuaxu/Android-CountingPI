@@ -91,6 +91,20 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             //in case no product exist in this line, then no change quantity is possible
             viewHolder.ChangeQuantityLayout.setVisibility(View.INVISIBLE);
         }
+        if(!item_line.Batch.equals("")) {
+            viewHolder.BatchLayout.setVisibility(View.VISIBLE);
+            String batchProperty = item_line.Batch;
+            viewHolder.BatchView.setText(batchProperty);
+        } else {
+            viewHolder.BatchLayout.setVisibility(View.GONE);
+        }
+        if(!item_line.Owner.equals("") && !StorageBinHelper.isOwnerSame(listData)) {
+            viewHolder.OwnerLayout.setVisibility(View.VISIBLE);
+            String batchProperty = item_line.Owner;
+            viewHolder.OwnerView.setText(batchProperty);
+        } else {
+            viewHolder.OwnerLayout.setVisibility(View.GONE);
+        }
         return convertView;
     }
 
@@ -145,6 +159,11 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         TextView UOMView;
         FloatingActionButton AddQuantityView;
         FloatingActionButton ReduceQuantityView;
+        TextView ProductPropertyView;
+        LinearLayout BatchLayout;
+        TextView BatchView;
+        LinearLayout OwnerLayout;
+        TextView OwnerView;
         /*LinearLayout layout_product;
         RadioButton HUMissingView;
         RadioButton HUEmptyView;
@@ -163,6 +182,10 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             AddQuantityView = (FloatingActionButton) view.findViewById(R.id.add_quantity);
             ReduceQuantityView = (FloatingActionButton) view.findViewById(R.id.reduce_quantity);
             ChangeQuantityLayout = (LinearLayout) view.findViewById(R.id.change_quantity);
+            BatchLayout = (LinearLayout) view.findViewById(R.id.batch_layout);
+            BatchView = (TextView) view.findViewById(R.id.batch);
+            OwnerLayout = (LinearLayout) view.findViewById(R.id.owner_layout);
+            OwnerView = (TextView) view.findViewById(R.id.owner);
             /*HUMissingView = (RadioButton) view.findViewById(R.id.hu_missing);
             HUEmptyView = (RadioButton) view.findViewById(R.id.hu_empty);*/
 

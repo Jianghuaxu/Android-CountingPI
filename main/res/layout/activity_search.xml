@@ -6,51 +6,48 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <android.support.v7.widget.Toolbar
-                    android:background="@color/colorPrimary"
-                    android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"/>
+                    android:layout_height="55dp"
+                    android:background="#427CAC"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
             </android.support.design.widget.AppBarLayout>
 
-            <android.support.design.widget.NavigationView
-                android:id="@+id/nav_view"
-                android:layout_gravity="start"
-                app:menu="@menu/navheader"
-                app:headerLayout="@layout/nav_header"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
             <RelativeLayout
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:id="@+id/search_main"
-                android:orientation="vertical" android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <ScrollView
-                    android:id="@+id/search_criteria"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_height="match_parent">
+
                         <android.support.design.widget.TextInputLayout
-                            android:paddingLeft="20dp"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp">
+
                             <EditText
                                 android:id="@+id/warehouse_number"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 android:hint="Warehouse Number(Mandatory)"
                                 android:inputType="text"
                                 android:maxLines="1"
-                                android:singleLine="true"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" />
+                                android:singleLine="true" />
                         </android.support.design.widget.TextInputLayout>
                         <android.support.design.widget.TextInputLayout
                             android:paddingLeft="20dp"
@@ -91,22 +88,50 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content" />
                         </android.support.design.widget.TextInputLayout>
+                        <LinearLayout
+                            android:paddingTop="20dp"
+                            android:paddingLeft="20dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:text="Count Mode"
+                                android:textSize="18sp"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="3"/>
+
+                            <Switch
+                                android:id="@+id/guided_mode"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="2"
+                                android:text="Guided Mode" />
+                        </LinearLayout>
                     </LinearLayout>
-                </ScrollView>
                 <Button
+                    android:textAllCaps="false"
                     android:id="@+id/search_pi"
                     android:textColorHighlight="@color/white"
-                    android:background="@color/pink"
-                    android:layout_marginLeft="70dp"
-                    android:layout_marginRight="70dp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/logon_btn"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="60dp"
                     android:text="Search"
-                    android:layout_marginBottom="100dp"
+                    android:textSize="18sp"
+
                     android:layout_alignParentBottom="true"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="120dp"/>
-
+                    android:layout_height="wrap_content"/>
             </RelativeLayout>
+        </android.support.design.widget.CoordinatorLayout>
+        <android.support.design.widget.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/nav_header"
+            app:menu="@menu/navheader"
+            app:elevation="8dp"/>
     </android.support.v4.widget.DrawerLayout>
-
 </layout>

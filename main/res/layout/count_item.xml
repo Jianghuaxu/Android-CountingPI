@@ -1,154 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="10dp"
-        android:layout_marginBottom="5dp"
-        android:background="#1000"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:id="@+id/product_desc_sec"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:orientation="vertical">
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:background="#3000"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:backgroundTint="#3000"
+            app:cardCornerRadius="10dip"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
+            tools:targetApi="lollipop">
 
             <LinearLayout
+                android:padding="10dp"
+                android:id="@+id/product_desc_sec"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/productdesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="left"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="20sp" />
-            </LinearLayout>
-            <!--<LinearLayout-->
-            <!--android:paddingTop="5dp"-->
-            <!--android:paddingBottom="5dp"-->
-            <!--android:id="@+id/countItemLine1"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height = "wrap_content">-->
-            <!--<TextView-->
-            <!--android:textColor="@color/white"-->
-            <!--android:text="Handling Unit:"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent" />-->
-            <!--<TextView-->
-            <!--android:textColor="@color/white"-->
-            <!--android:id="@+id/hu"-->
-            <!--android:paddingLeft="10dp"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"/>-->
-            <!--</LinearLayout>-->
-            <!--<RadioGroup
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <RadioButton android:id="@+id/hu_empty"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:buttonTint="@color/white"
-                    android:paddingLeft="15dp"
-                    android:textColor="@color/white"
-                    android:text="HU Empty"/>
-                <RadioButton android:id="@+id/hu_missing"
-                    android:paddingLeft="15dp"
-                    android:layout_width="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/productdesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <!--<LinearLayout-->
+                <!--android:paddingTop="5dp"-->
+                <!--android:paddingBottom="5dp"-->
+                <!--android:id="@+id/countItemLine1"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height = "wrap_content">-->
+                <!--<TextView-->
+                <!--android:textColor="@color/white"-->
+                <!--android:text="Handling Unit:"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent" />-->
+                <!--<TextView-->
+                <!--android:textColor="@color/white"-->
+                <!--android:id="@+id/hu"-->
+                <!--android:paddingLeft="10dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"/>-->
+                <!--</LinearLayout>-->
+                <!--<RadioGroup
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:buttonTint="@color/white"
-                    android:textColor="@color/white"
-                    android:text="HU Missing"/>
-            </RadioGroup>-->
-            <LinearLayout
-                android:id="@+id/product_id_sec"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="15dp"
-                android:paddingTop="15dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="left"
-                    android:text="Product:"
-                    android:textColor="@color/black" />
-
-                <TextView
-                    android:id="@+id/product"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingLeft="10dp"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/change_quantity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/reduce_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:background="@color/white"
-                    android:src="@drawable/reduce_quantity"
-                    app:backgroundTint="@color/white"
-                    app:fabSize="mini" />
-                <android.support.design.widget.TextInputLayout
-                    android:layout_height="match_parent"
-                    android:layout_width="wrap_content">
-
-                    <EditText
-                        android:id="@+id/quantity"
-                        android:layout_width="76dp"
+                    android:orientation="horizontal">
+                    <RadioButton android:id="@+id/hu_empty"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
+                        android:buttonTint="@color/white"
+                        android:paddingLeft="15dp"
+                        android:textColor="@color/white"
+                        android:text="HU Empty"/>
+                    <RadioButton android:id="@+id/hu_missing"
+                        android:paddingLeft="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/white"
+                        android:textColor="@color/white"
+                        android:text="HU Missing"/>
+                </RadioGroup>-->
+                <LinearLayout
+                    android:id="@+id/product_id_sec"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="7dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:text="Product ID:"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/product"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:paddingLeft="10dp"
+                        android:textSize="16sp"
                         android:gravity="center"
-                        android:maxLines="1"
-                        android:singleLine="true"
-                        android:text="" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textColor="@color/black" />
+                </LinearLayout>
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/batch_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="7dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:text="Batch:"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/batch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:paddingLeft="10dp"
+                        android:gravity="center"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/owner_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="7dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:text="Owner:"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/owner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:paddingLeft="10dp"
+                        android:gravity="center"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                </LinearLayout>
 
 
+                <LinearLayout
+                    android:id="@+id/change_quantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp">
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/add_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:background="@color/white"
-                    android:src="@drawable/add_quantity"
-                    app:backgroundTint="@color/white"
-                    app:fabSize="mini" />
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/reduce_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@color/white"
+                        android:src="@drawable/reduce_quantity"
+                        app:backgroundTint="@color/white"
+                        app:fabSize="mini" />
 
-                <TextView
-                    android:id="@+id/uom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:gravity="bottom"
-                    android:paddingLeft="25dp"
-                    android:textColor="@color/black" />
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                        <EditText
+                            android:id="@+id/quantity"
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:text="" />
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/add_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@color/white"
+                        android:src="@drawable/add_quantity"
+                        app:backgroundTint="@color/white"
+                        app:fabSize="mini" />
+
+                    <ImageView
+                        android:layout_marginLeft="60dp"
+                        android:src="@drawable/uom_prev"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/uom"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/black"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/uom_next" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-
-
-    </LinearLayout>
+        </android.support.v7.widget.CardView>
 
 </layout>

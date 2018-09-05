@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,13 +29,18 @@ import java.util.ArrayList;
 import gson.PIItems;
 import model.PIItemsUrlLoad;
 import model.StorageBin;
+import model.WarehouseOrderCount;
 import modelHelper.StorageBinHelper;
+import modelHelper.WOCountHelper;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import util.HttpUtil;
+import util.LocalStorageUtil;
 import util.Util;
+
+import static modelHelper.StorageBinHelper.getBinArrayList;
 
 public class CountActivity extends AppCompatActivity implements View.OnClickListener, CountItemAdapter.Callback{
     ActivityCountBinding countBinding;
@@ -42,6 +48,9 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
     String woNumber;
     String piDocUuid;
     String piItemURL;
+
+    //handle source activity
+    Intent receivedIntent;
 
     //handle all piItems in current Warehouse Order
     ArrayList<PIItems> piItems = new ArrayList<>();
@@ -57,19 +66,54 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
     ProgressDialog progressDialog;
     String countDate;
     String countUser;
+    int responseCount = 0;
+    int numberOfPutRequest = 0;
+    boolean hasError = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         countBinding = DataBindingUtil.setContentView(CountActivity.this, R.layout.activity_count);
 
-        Intent intent = getIntent();
-        woNumber = intent.getStringExtra("WO_Number");
-        piDocUuid = intent.getStringExtra("PI_DOC_UUID");
-        countUser = HttpUtil.getUserName();
-        countDate = intent.getStringExtra("Count_date");
-        piItemURL = HttpUtil.getPIItemURL(piDocUuid, woNumber);
-        getPIItemsWithOKHttp(piItemURL);
+        //set toolbar
+        Toolbar toolbar = (Toolbar)countBinding.getRoot().findViewById(R.id.toolbar_count);
+        setSupportActionBar(toolbar);
+
+        receivedIntent = getIntent();
+        /***
+         * three source activity exist:
+         * 1, normal mode: handle local unsaved WO
+         * 2, normal mode: need to get PIItems for specific WONumber and PI Doc Guid
+         * 3, Guided_mode: all data are received in WOCountHelper.
+         */
+        if(receivedIntent.getStringExtra("handleLocal").equals("true")) {
+            //scenario 1
+            String unsavedWOData = LocalStorageUtil.getUnsavedData(CountActivity.this, receivedIntent.getStringExtra("WO_Number"));
+            WarehouseOrderCount warehouseOrderCount = new Gson().fromJson(unsavedWOData, WarehouseOrderCount.class);
+            StorageBinHelper.setBinArrayList(warehouseOrderCount.binArrayList);
+            woNumber = warehouseOrderCount.WarehouseOrderNumber;
+            countDate = warehouseOrderCount.CountDate;
+            showDefaultView();
+            countBinding.binEmpty.setChecked(currentStorageBin.binEmpty);
+        }else {
+            if(receivedIntent.getStringExtra("isGuidedMode").equals("true")) {
+                //scenario 3
+                WarehouseOrderCount defaultWarehouseOrder = WOCountHelper.getNextWarehouseOrder();
+                StorageBinHelper.setBinArrayList(defaultWarehouseOrder.binArrayList);
+                woNumber = defaultWarehouseOrder.WarehouseOrderNumber;
+                countDate = defaultWarehouseOrder.CountDate;
+                showDefaultView();
+                Log.d("CountMode", "Guided");
+            } else {
+                //Scenario 2
+                woNumber = receivedIntent.getStringExtra("WO_Number");
+                piDocUuid = receivedIntent.getStringExtra("PI_DOC_UUID");
+                countUser = HttpUtil.getUserName();
+                countDate = receivedIntent.getStringExtra("Count_date");
+                piItemURL = HttpUtil.getPIItemURL(piDocUuid, woNumber);
+                getPIItemsWithOKHttp(piItemURL);
+            }
+        }
 
         //add listeners
         countBinding.nextBin.setOnClickListener(this);
@@ -82,7 +126,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         });
 
         initDialog();
-        countBinding.headerWo.setText(countBinding.headerWo.getText() + woNumber);
+        countBinding.headerWo.setText(woNumber);
 
     }
 
@@ -147,7 +191,21 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         currentStorageBin = StorageBinHelper.getNextStorageBin(currentStorageBin);
         if(currentStorageBin == null) {
             countBinding.bar.setProgress(countBinding.bar.getMax());
-            handleSaveBinItems();
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CountActivity.this);
+            dialogBuilder.setMessage("Warehouse Order: " + woNumber + " is counted, where do you want to save?");
+            dialogBuilder.setPositiveButton("Backend", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handleSaveBinItems();
+                }
+            });
+            dialogBuilder.setNegativeButton("Local", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handleSaveToLocal();
+                }
+            });
+            dialogBuilder.create().show();
             return;
         }
         adapter.clear();
@@ -196,6 +254,9 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
                 try {
+                    if(response.isSuccessful()) {
+
+                    }
                     Log.d("Wolist", response.toString());
                     final String responseData = response.body().string();
                     JSONObject Jobject = new JSONObject(responseData);
@@ -273,6 +334,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
          */
         StorageBin defaultStorageBin = StorageBinHelper.getDefaultStorageBin();
         currentStorageBin = defaultStorageBin;
+        StorageBinHelper.resetCountedStorageBins();
         refreshHeaderInfo();
         countBinding.previousBin.setVisibility(View.INVISIBLE);
         adapter = new CountItemAdapter(CountActivity.this, R.layout.count_item, defaultStorageBin.piItemsInBin, this);
@@ -295,17 +357,13 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_quantity:
-                handleSaveBinItems();
+                //handleSaveBinItems();
                 break;
         }
         return true;
     }
 
     private void handleSaveBinItems() {
-        if(progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-        }
-        Util.showProgressDialog(progressDialog, true);
 
         /***
          * following check should be done:
@@ -313,9 +371,56 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
          * 2, all storage bins are counted = > if not pop-up that warehouse order is incomplete
          */
         ArrayList<PIItemsUrlLoad> piItemsUrlLoadArrayList = StorageBinHelper.preparePutRequestLoad(countDate);
+        numberOfPutRequest = piItemsUrlLoadArrayList.size();
+
+        responseCount = 0;
         for(PIItemsUrlLoad piItemsUrlLoad: piItemsUrlLoadArrayList) {
+            Log.d("Url", piItemsUrlLoad.url);
             sendPostRequest(piItemsUrlLoad.url, piItemsUrlLoad.requestBody);
         }
+    }
+
+    private void handleSaveToLocal() {
+        ArrayList<StorageBin> binArrayListSaveLocal = StorageBinHelper.getBinArrayList();
+        WarehouseOrderCount warehouseOrderCount = new WarehouseOrderCount();
+        warehouseOrderCount.WarehouseOrderNumber = woNumber;
+        warehouseOrderCount.CountDate = countDate;
+        warehouseOrderCount.binArrayList = binArrayListSaveLocal;
+        LocalStorageUtil.saveWOToFile(CountActivity.this, woNumber, new Gson().toJson(warehouseOrderCount, WarehouseOrderCount.class));
+        //get the next storage bin, just like the final step while saving to backend.
+        Toast.makeText(CountActivity.this, "Save to local done", Toast.LENGTH_LONG).show();
+        WarehouseOrderCount nextWarehouseOrderCount = null;
+        if(WOCountHelper.getIsGuidedMode()) {
+            //only in this mode, there would be multiple WOs
+            nextWarehouseOrderCount = WOCountHelper.getNextWarehouseOrder();
+        }
+
+        if(nextWarehouseOrderCount != null) {
+            StorageBinHelper.setBinArrayList(nextWarehouseOrderCount.binArrayList);
+            //continue to count next warehouse order!
+            showDefaultView();
+            return;
+        }
+        //all tasks are finished!
+        android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(CountActivity.this);
+        alertDialogBuilder.setMessage("All WO are saved successfully, do you want to continue? ");
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(CountActivity.this, SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+                System.exit(0);
+            }
+        });
+        alertDialogBuilder.create().show();
+        alertDialog.setMessage("All tasks finished, you wanna quit? ");
+        return;
     }
 
     private Boolean checkCurrentStorageBinComplete () {
@@ -350,30 +455,79 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         HttpUtil.saveOkHttpPostRequest(postUri, postLoad, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                //update token again
-                Log.d("postLoad", "onFailure");
-                Util.showProgressDialog(progressDialog, false);
-                Toast.makeText(CountActivity.this, "Save failure", Toast.LENGTH_LONG).show();
+                Log.d("Failure", e.getMessage());
+                handlePostResponseData(true);
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d("postLoad", "onResponse");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                    Util.showProgressDialog(progressDialog, false);
-                    Toast.makeText(CountActivity.this, "Save successfully", Toast.LENGTH_LONG).show();
-                    currentStorageBin = StorageBinHelper.getNextStorageBinOfNextWO();
-                    if(currentStorageBin == null) {
-                        //all tasks are finished!
-                        alertDialog.setMessage("All tasks finished, you wanna quit? ");
-                        return;
-                    }
-                    }
-                });
+                Log.d("Status_code", String.valueOf(response.code()));
+                if(response.isSuccessful()) {
+                    handlePostResponseData(false);
+                }else {
+                    handlePostResponseData(true);
+                }
             }
         });
+    }
+
+    private void handlePostResponseData(boolean error) {
+        responseCount++;
+        if(error) {
+            hasError = true;
+        }
+        if(responseCount == numberOfPutRequest) {
+            onFinalSaveResponseReceived();
+        }
+
+    }
+
+    private void onFinalSaveResponseReceived() {
+        if(hasError) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(CountActivity.this, "Save failure", Toast.LENGTH_LONG).show();
+                }
+            });
+        }else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    LocalStorageUtil.deleteWO(CountActivity.this, woNumber);
+                    WarehouseOrderCount warehouseOrderCount = null;
+                    Toast.makeText(CountActivity.this, "Save successfully", Toast.LENGTH_LONG).show();
+                    //TODO: in Guided_Mode, check if other WO exists, if yes then set arraylist in StorageBinHelper class
+                    if(WOCountHelper.getIsGuidedMode()) {
+                        warehouseOrderCount = WOCountHelper.getNextWarehouseOrder();
+                    }
+
+                    if(warehouseOrderCount != null) {
+                        StorageBinHelper.setBinArrayList(warehouseOrderCount.binArrayList);
+                        showDefaultView();
+                        return;
+                    }
+                    //all tasks are finished!
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(CountActivity.this);
+                    alertDialogBuilder.setMessage("All WO are saved successfully, do you want to continue? ");
+                    alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(CountActivity.this, SearchActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                    alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    alertDialogBuilder.create().show();
+                    alertDialog.setMessage("All tasks finished, you wanna quit? ");
+                    return;
+                }
+            });
+        }
     }
 
 }

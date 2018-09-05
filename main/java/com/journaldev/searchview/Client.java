@@ -36,12 +36,10 @@ public class Client extends OkHttpClient implements Serializable{
         mBuilder = new OkHttpClient.Builder();
         mBuilder.sslSocketFactory(createSSLSocketFactory(), new TrustAllCerts());
         mBuilder.hostnameVerifier(new TrustAllHostnameVerifier());
-        mBuilder.readTimeout(30, TimeUnit.SECONDS);
-        mBuilder.connectTimeout(30, TimeUnit.SECONDS);
         CookieJar cookieJar =
                 new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
 
-        //mBuilder.cookieJar(cookieJar);
+        mBuilder.cookieJar(cookieJar);
         client =  mBuilder.build();
     }
 

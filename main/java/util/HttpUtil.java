@@ -1,14 +1,30 @@
 package util;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.journaldev.searchview.LogonActivity;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
+import gson.PIHeaders;
+import model.WarehouseOrderCount;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class HttpUtil {
 
@@ -46,6 +62,7 @@ public class HttpUtil {
     public static void sendOkHttpRequestLogon(okhttp3.Callback callback) {
         Request.Builder builder =  new Request.Builder();
         builder = addCredential(builder);
+        builder.header("Content-Type", "application/atom+xml");
         builder.header("x-csrf-token", "fetch");
         Request request = builder.url(hostName).build();
         client.newCall(request).enqueue(callback);
@@ -62,7 +79,7 @@ public class HttpUtil {
         Request.Builder builder =  new Request.Builder();
         builder = addCredential(builder);
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        builder.header("X-CSRF-Token", token);
+        builder.header("x-csrf-token", token);
         builder.header("X-Requested-With", "XMLHttpRequest");
         builder.header("Content-Type","application/json");
         builder.method("PUT", RequestBody.create(JSON, postLoad));
@@ -114,6 +131,8 @@ public class HttpUtil {
         return hostName + entitiySet + server_client_name + expandDynamicFields + filterProperties;
     }
 
-
-
+    public static void afterRequestFailed(Context context){
+        Toast.makeText(context, "Logon failed", Toast.LENGTH_SHORT).show();
     }
+
+}

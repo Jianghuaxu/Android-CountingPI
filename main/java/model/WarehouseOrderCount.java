@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 
 public class WarehouseOrderCount {
-    String WarehouseOrderNumber;
-    ArrayList<StorageBin> binArrayList;
+    public String WarehouseOrderNumber;
+    public String CountDate;
+    public ArrayList<StorageBin> binArrayList;
 }

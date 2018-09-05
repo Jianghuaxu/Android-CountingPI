@@ -22,7 +22,24 @@ public class StorageBinHelper {
 
     public static void setBinArrayList(ArrayList<StorageBin> binList) {
         binArrayList = binList;
-        //also need to save WO related info?  currently no...
+        countedStorageBins = 0;
+    }
+
+    public static boolean isOwnerSame (ArrayList<PIItems> items) {
+        boolean isOwnerSameFlag = true;
+        PIItems firstItem = items.get(0);
+        for(PIItems item: items) {
+            if(!item.Owner.equals(firstItem.Owner)) {
+                isOwnerSameFlag = false;
+                break;
+            }
+        }
+        return isOwnerSameFlag;
+
+    }
+
+    public static void resetCountedStorageBins(){
+        countedStorageBins = 0;
     }
 
     public static ArrayList<StorageBin> getBinArrayList() {
@@ -115,8 +132,9 @@ public class StorageBinHelper {
          */
         for(StorageBin bin: binArrayList) {
             if(bin.binEmpty) {
-
                 PIItems item = bin.piItemsInBin.get(0);
+                item.StorageBinEmpty = true;
+                item.ProductQuantity = "0.000";
                 PIItemsUrlLoad urlLoad = new PIItemsUrlLoad(item);
                 piItemsUrlLoadList.add(urlLoad);
                 //only first line
@@ -124,6 +142,9 @@ public class StorageBinHelper {
             }
             //for not bin empty case, we check every entries
             for(PIItems item: bin.piItemsInBin) {
+                if(item.Product.equals("")) {
+                    item.ProductQuantity = "0.000";
+                }
                 //Handling Unit is missing/empty
                 if(bin.HUEmpty.contains(item.HandlingUnit) || bin.HUMissing.contains(item.HandlingUnit)) {
                     if(HUs.contains(item.HandlingUnit)) {
@@ -154,7 +175,7 @@ public class StorageBinHelper {
         //add count user and count date in the end
         PIItemsUrlLoad piItemsUrlLoadFirst = piItemsUrlLoadList.get(0);
         PIItems itemFirst = new Gson().fromJson(piItemsUrlLoadFirst.requestBody, PIItems.class);
-        itemFirst.CountUser = HttpUtil.getUserName();
+        itemFirst.CountUser = HttpUtil.getUserName().toUpperCase();
         itemFirst.CountDate = CountDate;
         piItemsUrlLoadFirst.requestBody = new Gson().toJson(itemFirst, PIItems.class);
         piItemsUrlLoadList.set(0, piItemsUrlLoadFirst);

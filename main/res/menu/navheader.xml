@@ -4,6 +4,7 @@
         <item
             android:title="Tasks Overview"/>
         <item
+            android:id="@+id/unsavedTasks"
             android:title="Unsaved Tasks"/>
     </group>
 </menu>

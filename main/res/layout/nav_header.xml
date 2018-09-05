@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="180dp"
+<LinearLayout android:layout_height="180dp"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:padding="10dp"
-    android:background="@color/colorPrimary">
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:id="@+id/nav_header_img"
-        android:layout_centerInParent="true"
-        android:src="@mipmap/nav_header_img"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/nav_header_name"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:layout_alignParentBottom="true"/>
-</RelativeLayout>
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/colorPrimary" />
+
+    <LinearLayout
+        android:layout_marginTop="-40dp"
+        android:gravity="right"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="80dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XUKI"
+            android:paddingTop="20dp"
+            android:textColor="@color/white"/>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/nav_header_img"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@mipmap/nav_header_img" />
+    </LinearLayout>
+
+
+</LinearLayout>
