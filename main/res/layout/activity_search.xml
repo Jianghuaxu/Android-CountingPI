@@ -44,7 +44,7 @@
                                 android:id="@+id/warehouse_number"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Warehouse Number(Mandatory)"
+                                android:hint="Warehouse Number (Mandatory)"
                                 android:inputType="text"
                                 android:maxLines="1"
                                 android:singleLine="true" />
@@ -55,7 +55,7 @@
                             android:layout_height="wrap_content">
                             <EditText
                                 android:id="@+id/warehouse_order"
-                                android:hint="Warehouse Order(Optional)"
+                                android:hint="Warehouse Order (Optional)"
                                 android:imeOptions="actionUnspecified"
                                 android:maxLines="1"
                                 android:singleLine="true"
@@ -68,7 +68,7 @@
                             android:layout_height="wrap_content">
                             <EditText
                                 android:id="@+id/storage_type"
-                                android:hint="Storage Type(Optional)"
+                                android:hint="Storage Type (Optional)"
                                 android:imeOptions="actionUnspecified"
                                 android:maxLines="1"
                                 android:singleLine="true"
@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content">
                             <EditText
                                 android:id="@+id/aisle"
-                                android:hint="Aisle(Optional)"
+                                android:hint="Aisle (Optional)"
                                 android:imeOptions="actionUnspecified"
                                 android:maxLines="1"
                                 android:singleLine="true"
@@ -114,9 +114,9 @@
                     android:textColorHighlight="@color/white"
                     android:textColor="@color/white"
                     android:background="@drawable/logon_btn"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginBottom="60dp"
+                    android:layout_marginLeft="@dimen/button_margin_horizontal"
+                    android:layout_marginRight="@dimen/button_margin_horizontal"
+                    android:layout_marginBottom="70dp"
                     android:text="Search"
                     android:textSize="18sp"
 

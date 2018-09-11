@@ -64,23 +64,37 @@ public class StorageBinHelper {
         // this method is called when previous Storage bin is counted already
         StorageBin nextBin = null;
         //update currentStorageBin and find next
-        for(StorageBin bin: binArrayList) {
-            if(bin.storageBin.equals(currentStorageBin.storageBin)) {
-                StorageBin newBin = currentStorageBin;
-                bin.binCounted = true;
-                bin.piItemsInBin = newBin.piItemsInBin;
-                if(nextBin != null) {
-                    break;
-                }
-            } else {
-                if(!bin.binCounted) {
-                    //rule for getting next storage bin: next bin which is not counted yet, not considering the WO number
-                    nextBin = bin;
-                    break;
-                }
+        int i;
+        for(i = 0; i < binArrayList.size(); i++) {
+            if (binArrayList.get(i).storageBin.equals(currentStorageBin.storageBin)) {
+                binArrayList.get(i).binCounted = true;
+                binArrayList.get(i).piItemsInBin = currentStorageBin.piItemsInBin;
+                break;
             }
         }
-        return nextBin;
+        if(i == binArrayList.size() - 1) {
+            return null;
+        }
+        return binArrayList.get(i+1);
+    }
+
+    public static StorageBin getPrevStorageBin(StorageBin currentStorageBin, boolean isCurrentComplete) {
+        StorageBin prevBin = null;
+        //find the current storageBin index and return the previous one
+        int i;
+
+        for(i = 0; i < binArrayList.size(); i++) {
+            if(binArrayList.get(i).storageBin.equals(currentStorageBin.storageBin)) {
+                if(isCurrentComplete) {
+                    //save current storage bin
+                    binArrayList.get(i).binCounted = true;
+                    binArrayList.get(i).piItemsInBin = currentStorageBin.piItemsInBin;
+                }
+                break;
+            }
+        }
+        prevBin = binArrayList.get(i-1);
+        return prevBin;
     }
 
     public static StorageBin getNextStorageBinOfNextWO() {

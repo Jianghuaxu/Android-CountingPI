@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
@@ -27,6 +28,7 @@ import modelHelper.StorageBinHelper;
 
 public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnClickListener{
     private ArrayList<PIItems> listData;
+    private ArrayList<PIItems> piItemsData;
     private int resourceId;
     private Callback callback;
     public interface Callback{
@@ -34,6 +36,8 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
          void onQuantityChanged(int itemPosition, String value);
          void onAddQuantity(View v);
          void onReduceQuantity(View v);
+         void switchUomForwards(View v);
+         void switchUomBackwards(View v);
     }
 
     public CountItemAdapter(@NonNull Context context, int resource,  ArrayList<PIItems> piItemList, Callback callback) {
@@ -41,6 +45,7 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         this.callback = callback;
         resourceId = resource;
         listData = piItemList;
+        piItemsData = piItemList;
     }
 
     @Override
@@ -66,31 +71,24 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         }
 
         PIItems item_line = listData.get(position);
-        viewHolder.ProductView.setText(item_line.Product);
+        if(!item_line.Product.equals("")) {
+            viewHolder.ProductLayout.setVisibility(View.VISIBLE);
+            viewHolder.ChangeQuantityLayout.setVisibility(View.VISIBLE);
+            viewHolder.ProductView.setText(item_line.Product);
+        }
         viewHolder.ProductDescriptionView.setText(item_line.ProductDescription);
         viewHolder.QuantityView.setText(item_line.ProductQuantity);
         viewHolder.UOMView.setText(item_line.ProductQuantityUoM);
-        /*viewHolder.HUEmptyView.setTag(position);
-        viewHolder.HUEmptyView.setOnClickListener(this);
-        viewHolder.HUMissingView.setOnClickListener(this);
-        viewHolder.HUMissingView.setTag(position);*/
         viewHolder.AddQuantityView.setOnClickListener(this);
         viewHolder.AddQuantityView.setTag(position);
         viewHolder.ReduceQuantityView.setOnClickListener(this);
         viewHolder.ReduceQuantityView.setTag(position);
         viewHolder.QuantityView.setTag(position);
-//        viewHolder.QuantityView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                quantityPosition = (int)v.getTag();
-//            }
-//        });
         viewHolder.QuantityView.addTextChangedListener(new TextSwitcher(viewHolder));
-        //dynamically show content of each view
-        if(item_line.Product.equals("")) {
-            //in case no product exist in this line, then no change quantity is possible
-            viewHolder.ChangeQuantityLayout.setVisibility(View.INVISIBLE);
-        }
+        viewHolder.UomprevView.setOnClickListener(this);
+        viewHolder.UomprevView.setTag(position);
+        viewHolder.UomnextView.setOnClickListener(this);
+        viewHolder.UomnextView.setTag(position);
         if(!item_line.Batch.equals("")) {
             viewHolder.BatchLayout.setVisibility(View.VISIBLE);
             String batchProperty = item_line.Batch;
@@ -142,18 +140,24 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             case R.id.reduce_quantity:
                 callback.onReduceQuantity(v);
                 break;
+            case R.id.uom_next:
+                callback.switchUomForwards(v);
+                break;
+            case R.id.uom_prev:
+                callback.switchUomBackwards(v);
+                break;
         }
         notifyDataSetChanged();
     }
 
     public void refreshStorageBin(ArrayList<PIItems> items) {
-        addAll(items);
-        notifyDataSetChanged();
+        listData = items;
     }
 
     class ViewHolder {
         TextView HUView;
         TextView ProductView;
+        LinearLayout ProductLayout;
         TextView ProductDescriptionView;
         EditText QuantityView;
         TextView UOMView;
@@ -171,10 +175,13 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         LinearLayout layout_countItem;*/
         LinearLayout ChangeQuantityLayout;
         Switch BinEmptyView;
+        ImageView UomnextView;
+        ImageView UomprevView;
 
         public void initViewHolder(View view){
             //HUView = (TextView) view.findViewById(R.id.hu);
             ProductView = (TextView) view.findViewById(R.id.product);
+            ProductLayout = (LinearLayout) view.findViewById(R.id.product_id_sec);
             ProductDescriptionView = (TextView) view.findViewById(R.id.productdesc);
             QuantityView = (EditText) view.findViewById(R.id.quantity);
             UOMView = (TextView) view.findViewById(R.id.uom);
@@ -186,6 +193,8 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             BatchView = (TextView) view.findViewById(R.id.batch);
             OwnerLayout = (LinearLayout) view.findViewById(R.id.owner_layout);
             OwnerView = (TextView) view.findViewById(R.id.owner);
+            UomprevView = (ImageView) view.findViewById(R.id.uom_prev);
+            UomnextView = (ImageView) view.findViewById(R.id.uom_next);
             /*HUMissingView = (RadioButton) view.findViewById(R.id.hu_missing);
             HUEmptyView = (RadioButton) view.findViewById(R.id.hu_empty);*/
 

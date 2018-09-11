@@ -94,7 +94,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         //add listener to switch(select if guidedMode)
         Switch guidedModeSwitch = (Switch) activitySearchBinding.getRoot().findViewById(R.id.guided_mode);
         guidedModeSwitch.setOnCheckedChangeListener(this);
-
         //initialize drawerlayout
         drawerLayout = activitySearchBinding.drawerLayout;
 
@@ -186,8 +185,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
         hideKeyboard();
         HttpUtil.setWareHouseNumber(whn);
-        String woNumber = activitySearchBinding.warehouseOrder.getText().toString();
-        String storageType = activitySearchBinding.storageType.getText().toString();
+        String woNumber = activitySearchBinding.warehouseOrder.getText().toString().toUpperCase();
+        String storageType = activitySearchBinding.storageType.getText().toString().toUpperCase();
         String aisle = activitySearchBinding.aisle.getText().toString();
         String piListUrl = HttpUtil.getPIListUrl(woNumber, storageType, aisle);
 

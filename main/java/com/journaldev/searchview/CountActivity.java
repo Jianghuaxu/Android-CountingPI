@@ -121,6 +121,11 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         countBinding.binEmpty.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    countBinding.binList.setVisibility(View.GONE);
+                } else {
+                    countBinding.binList.setVisibility(View.VISIBLE);
+                }
                 currentStorageBin.binEmpty = isChecked;
             }
         });
@@ -141,6 +146,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         currentStorageBin = StorageBinHelper.onQuantityChange(currentStorageBin, position, s);
     }
 
+    //callback interface realization
     @Override
     public void onAddQuantity(View v) {
         currentStorageBin = StorageBinHelper.onAddQuantity(currentStorageBin, v);
@@ -164,6 +170,39 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
+    public void switchUomForwards(View v) {
+        int itemPosition = (int) v.getTag();
+        ArrayList<String> uomList = new ArrayList<>();
+        uomList.add("EA");
+        uomList.add("CAR");
+        uomList.add("PAL");
+        String nextUom;
+        View view = countBinding.binList.getChildAt(itemPosition);
+        CountItemAdapter.ViewHolder viewHolder = (CountItemAdapter.ViewHolder) view.getTag();
+        String currentUom = viewHolder.UOMView.getText().toString();
+        nextUom = uomList.get((1 + uomList.indexOf(currentUom)) % 3);
+        viewHolder.UOMView.setText(nextUom);
+        currentStorageBin.piItemsInBin.get(itemPosition).ProductQuantityUoM = nextUom;
+    }
+
+    @Override
+    public void switchUomBackwards(View v) {
+        int itemPosition = (int) v.getTag();
+        ArrayList<String> uomList = new ArrayList<>();
+        uomList.add("EA");
+        uomList.add("CAR");
+        uomList.add("PAL");
+        String prevUom;
+        View view = countBinding.binList.getChildAt(itemPosition);
+        CountItemAdapter.ViewHolder viewHolder = (CountItemAdapter.ViewHolder) view.getTag();
+        String currentUom = viewHolder.UOMView.getText().toString();
+        prevUom = uomList.get((2 + uomList.indexOf(currentUom)) % 3);
+        viewHolder.UOMView.setText(prevUom);
+        currentStorageBin.piItemsInBin.get(itemPosition).ProductQuantityUoM = prevUom;
+
+    }
+
+    @Override
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.next_bin:
@@ -174,8 +213,43 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.previous_bin:
                 //TODO: go back to previous bin
+                goToPrevBin();
                 break;
         }
+    }
+
+    public void goToPrevBin() {
+        //should pop-up an alert-dialog informing user if incomplete task exists
+        if(!checkCurrentStorageBinComplete()) {
+            //all tasks are finished!
+            android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(CountActivity.this);
+            alertDialogBuilder.setMessage("Unsaved task would be lost, do you want to continue?");
+            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //clear current storage bin info and replace current storage bin with the previous one
+                    StorageBin bin = currentStorageBin;
+                    StorageBin prevBin = StorageBinHelper.getPrevStorageBin(bin, false);
+                    currentStorageBin = prevBin;
+                    refreshHeaderInfo();
+                    adapter.notifyDataSetChanged();
+                }
+            });
+            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    return;
+                }
+            });
+            alertDialogBuilder.create().show();
+        }else {
+            adapter.clear();
+            StorageBin prevStorageBin = StorageBinHelper.getPrevStorageBin(currentStorageBin, true);
+            refreshHeaderInfo();
+            adapter.refreshStorageBin(currentStorageBin.piItemsInBin);
+        }
+
+
     }
 
     public void goToNextBin() {
@@ -188,8 +262,8 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             StorageBinHelper.updateProgress();
             currentStorageBin.binCounted = true;
         }
-        currentStorageBin = StorageBinHelper.getNextStorageBin(currentStorageBin);
-        if(currentStorageBin == null) {
+        StorageBin nextBin = StorageBinHelper.getNextStorageBin(currentStorageBin);
+        if(nextBin == null) {
             countBinding.bar.setProgress(countBinding.bar.getMax());
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CountActivity.this);
             dialogBuilder.setMessage("Warehouse Order: " + woNumber + " is counted, where do you want to save?");
@@ -208,19 +282,22 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             dialogBuilder.create().show();
             return;
         }
-        adapter.clear();
-        adapter.refreshStorageBin(currentStorageBin.piItemsInBin);
+        currentStorageBin = nextBin;
         refreshHeaderInfo();
-        countBinding.previousBin.setVisibility(View.VISIBLE);
+        adapter.refreshStorageBin(currentStorageBin.piItemsInBin);
+        adapter.notifyDataSetChanged();
+        //countBinding.previousBin.setVisibility(View.VISIBLE);
     }
 
     private void refreshHeaderInfo() {
         countBinding.headerBin.setText(currentStorageBin.storageBin);
-        if(currentStorageBin.piItemsInBin.get(0).StorageBinEmpty) {
+        if(currentStorageBin.piItemsInBin.get(0).StorageBinEmpty || currentStorageBin.binEmpty) {
             currentStorageBin.binEmpty = true;
             countBinding.binEmpty.setChecked(true);
+            countBinding.binList.setVisibility(View.GONE);
         } else {
             countBinding.binEmpty.setChecked(false);
+            countBinding.binList.setVisibility(View.VISIBLE);
         }
         //handle the horizontal progress bar
         int newProgress = StorageBinHelper.getProgress(countBinding.bar.getMax());
@@ -503,6 +580,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
 
                     if(warehouseOrderCount != null) {
                         StorageBinHelper.setBinArrayList(warehouseOrderCount.binArrayList);
+                        countBinding.headerWo.setText(warehouseOrderCount.WarehouseOrderNumber);
                         showDefaultView();
                         return;
                     }
@@ -523,8 +601,6 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
                         }
                     });
                     alertDialogBuilder.create().show();
-                    alertDialog.setMessage("All tasks finished, you wanna quit? ");
-                    return;
                 }
             });
         }

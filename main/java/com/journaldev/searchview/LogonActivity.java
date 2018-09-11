@@ -54,8 +54,8 @@ public class LogonActivity extends AppCompatActivity {
 
         Spinner serverList = (Spinner) findViewById(R.id.server_list);
         ArrayList<String> servers = new ArrayList<>();
+        servers.add("UYT700-ER9003");
         servers.add("WMT210-QKX101");
-        servers.add("UYR210-QM7710");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.server_list_item, servers);
         serverList.setAdapter(adapter);
         serverList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -116,8 +116,8 @@ public class LogonActivity extends AppCompatActivity {
             case "WMT210-QKX101":
                 this.serverName = "https://wmt210-qkx101.wdf.sap.corp/sap/opu/odata/SCWM/RECORD_INVENTORY_SRV/";
                 break;
-            case "UYR210-QM7710":
-                this.serverName = "https://ldciuyr.wdf.sap.corp:44300/sap/opu/odata/SCWM/RECORD_INVENTORY_SRV/";
+            case "UYT700-ER9003":
+                this.serverName = "https://uyt700-er9003.wdf.sap.corp/sap/opu/odata/SCWM/RECORD_INVENTORY_SRV/";
                 break;
         }
         HttpUtil.setHostName(this.serverName);

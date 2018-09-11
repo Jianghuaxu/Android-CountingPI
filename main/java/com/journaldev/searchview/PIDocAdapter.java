@@ -52,12 +52,6 @@ public class PIDocAdapter extends ArrayAdapter<PIDoc> implements Filterable{
         }
         viewHolder.imageView.setImageResource(piDoc.getImageResourceById());
         viewHolder.textView.setText(String.valueOf(piDoc.getPIDocNumber()));
-        //small feature set color to indicate the status
-        if(position%2==0) {
-            viewHolder.textView.setTextColor(Color.GREEN);
-        } else {
-            viewHolder.textView.setTextColor(Color.GRAY);
-        }
 
         return view;
     }
@@ -116,9 +110,9 @@ public class PIDocAdapter extends ArrayAdapter<PIDoc> implements Filterable{
             FilterResults filterResults = new FilterResults();
             if (constraint != null && constraint.length() > 0) {
                 ArrayList<PIDoc> filterList2 = new ArrayList<>();
-                for (int i = 0; i < list.size(); i++) {
-                    if((String.valueOf(list.get(i).getPIDocNumber()).toUpperCase()).contains(constraint.toString().toUpperCase())) {
-                        filterList2.add(list.get(i));
+                for (int i = 0; i < filterList.size(); i++) {
+                    if((String.valueOf(filterList.get(i).getPIDocNumber()).toUpperCase()).contains(constraint.toString().toUpperCase())) {
+                        filterList2.add(filterList.get(i));
                     }
                 }
                 filterResults.count = filterList2.size();
@@ -136,5 +130,10 @@ public class PIDocAdapter extends ArrayAdapter<PIDoc> implements Filterable{
             Integer listSize = getCount();
             notifyDataSetChanged();
         }
+    }
+
+    public void refreshPIList(ArrayList<PIDoc> piDocs) {
+        filterList = piDocs;
+        list = piDocs;
     }
 }

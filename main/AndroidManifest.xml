@@ -15,26 +15,30 @@
         android:label="Count PI"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LogonActivity">
+        <activity android:name=".LogonActivity" android:launchMode="singleTop">
+
+        </activity>
+        <activity android:name=".SearchActivity"
+            android:launchMode="singleTop"
+            android:label="Search Criteria">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".SearchActivity"
-            android:label="Search Criteria">
-        </activity>
         <activity android:name=".MainActivity"
+            android:launchMode="singleTop"
             android:label="PI List">
         </activity>
         <activity android:name=".WOListActivity"
+            android:launchMode="singleTop"
             android:label="WO List">
 
         </activity>
         <activity android:name=".CountActivity"
             android:label="Counting"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="stateUnchanged|adjustPan">
-
         </activity>
     </application>
 
