@@ -62,6 +62,9 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
     //handle current storage Bin
     StorageBin currentStorageBin;
 
+    //handle local wo
+    boolean handleLocalIndicator = false;
+
     //handle save
     ProgressDialog progressDialog;
     String countDate;
@@ -87,6 +90,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
          * 3, Guided_mode: all data are received in WOCountHelper.
          */
         if(receivedIntent.getStringExtra("handleLocal").equals("true")) {
+            handleLocalIndicator = true;
             //scenario 1
             String unsavedWOData = LocalStorageUtil.getUnsavedData(CountActivity.this, receivedIntent.getStringExtra("WO_Number"));
             WarehouseOrderCount warehouseOrderCount = new Gson().fromJson(unsavedWOData, WarehouseOrderCount.class);
@@ -265,21 +269,9 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         StorageBin nextBin = StorageBinHelper.getNextStorageBin(currentStorageBin);
         if(nextBin == null) {
             countBinding.bar.setProgress(countBinding.bar.getMax());
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CountActivity.this);
-            dialogBuilder.setMessage("Warehouse Order: " + woNumber + " is counted, where do you want to save?");
-            dialogBuilder.setPositiveButton("Backend", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    handleSaveBinItems();
-                }
-            });
-            dialogBuilder.setNegativeButton("Local", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    handleSaveToLocal();
-                }
-            });
-            dialogBuilder.create().show();
+            Intent intent =  new Intent(CountActivity.this, SaveConfirmationActivity.class);
+            intent.putExtra("wo_number", woNumber);
+            startActivityForResult(intent, 1);
             return;
         }
         currentStorageBin = nextBin;
@@ -287,6 +279,27 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         adapter.refreshStorageBin(currentStorageBin.piItemsInBin);
         adapter.notifyDataSetChanged();
         //countBinding.previousBin.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 1:
+                if(resultCode == RESULT_OK) {
+                    String intentData = data.getStringExtra("save_local");
+                    if(intentData.equals("1")) {
+                        handleSaveToLocal();
+                    } else {
+                        handleSaveBinItems();
+                    }
+                }
+                break;
+            case 2:
+                //validation of storage bin info
+                if(resultCode == RESULT_CANCELED) {
+                    CountActivity.this.finish();
+                }
+        }
     }
 
     private void refreshHeaderInfo() {
@@ -304,6 +317,18 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         countBinding.bar.setProgress(newProgress);
         int itemPosition = StorageBinHelper.getItemPosition(currentStorageBin);
         countBinding.itemPosition.setText(itemPosition + "/" + StorageBinHelper.getNumberOfItems());
+        //validation of storage bin
+        if(!handleLocalIndicator){
+            validateStorageBin();
+        }
+    }
+
+    private void validateStorageBin() {
+        //pop-up a dialog to let the user to scan the storage bin info and compare it with the one in the header level
+        Intent intent = new Intent(CountActivity.this, ValidateBinActivity.class);
+        intent.putExtra("bin", currentStorageBin.storageBin);
+        startActivityForResult(intent, 2);
+
     }
 
     public void initDialog(){
@@ -538,6 +563,33 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Log.d("Status_code", String.valueOf(response.code()));
+                String responseCode = String.valueOf(response.code());
+                if(responseCode.endsWith("403")) {
+                    HttpUtil.sendOkHttpRequestLogon(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.d("Failure", e.getMessage());
+                        }
+
+                        @Override
+                        public void onResponse(Call call, final Response response) throws IOException {
+                            ResponseBody respBody = response.body();
+                            try{
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        HttpUtil.setToken(response.header("x-csrf-token"));
+                                        //try again
+                                        handleSaveBinItems();
+                                    }
+                                });
+
+                            } finally {
+                                respBody.close();
+                            }
+                        }
+                    });
+                }
                 if(response.isSuccessful()) {
                     handlePostResponseData(false);
                 }else {

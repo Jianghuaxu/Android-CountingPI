@@ -72,9 +72,11 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
 
         PIItems item_line = listData.get(position);
         if(!item_line.Product.equals("")) {
+            viewHolder.NoContentLayout.setVisibility(View.GONE);
             viewHolder.ProductLayout.setVisibility(View.VISIBLE);
             viewHolder.ChangeQuantityLayout.setVisibility(View.VISIBLE);
             viewHolder.ProductView.setText(item_line.Product);
+            viewHolder.ProductDescLayout.setVisibility(View.VISIBLE);
         }
         viewHolder.ProductDescriptionView.setText(item_line.ProductDescription);
         viewHolder.QuantityView.setText(item_line.ProductQuantity);
@@ -158,6 +160,7 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         TextView HUView;
         TextView ProductView;
         LinearLayout ProductLayout;
+        LinearLayout ProductDescLayout;
         TextView ProductDescriptionView;
         EditText QuantityView;
         TextView UOMView;
@@ -168,6 +171,7 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
         TextView BatchView;
         LinearLayout OwnerLayout;
         TextView OwnerView;
+        LinearLayout NoContentLayout;
         /*LinearLayout layout_product;
         RadioButton HUMissingView;
         RadioButton HUEmptyView;
@@ -182,6 +186,7 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             //HUView = (TextView) view.findViewById(R.id.hu);
             ProductView = (TextView) view.findViewById(R.id.product);
             ProductLayout = (LinearLayout) view.findViewById(R.id.product_id_sec);
+            ProductDescLayout = (LinearLayout) view.findViewById(R.id.product_desc_layout);
             ProductDescriptionView = (TextView) view.findViewById(R.id.productdesc);
             QuantityView = (EditText) view.findViewById(R.id.quantity);
             UOMView = (TextView) view.findViewById(R.id.uom);
@@ -195,6 +200,7 @@ public class CountItemAdapter extends ArrayAdapter<PIItems> implements View.OnCl
             OwnerView = (TextView) view.findViewById(R.id.owner);
             UomprevView = (ImageView) view.findViewById(R.id.uom_prev);
             UomnextView = (ImageView) view.findViewById(R.id.uom_next);
+            NoContentLayout = (LinearLayout) view.findViewById(R.id.no_item_layout);
             /*HUMissingView = (RadioButton) view.findViewById(R.id.hu_missing);
             HUEmptyView = (RadioButton) view.findViewById(R.id.hu_empty);*/
 

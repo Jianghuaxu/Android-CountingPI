@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.journaldev.searchview">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Count PI"
+        android:label="Counting"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".LogonActivity" android:launchMode="singleTop">
-
-        </activity>
-        <activity android:name=".SearchActivity"
-            android:launchMode="singleTop"
-            android:label="Search Criteria">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".SearchActivity"
+            android:launchMode="singleTop"
+            android:label="Search Criteria">
+
         </activity>
         <activity android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -40,6 +43,22 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="stateUnchanged|adjustPan">
         </activity>
+        <activity android:name=".SaveConfirmationActivity"
+            android:theme="@style/SaveConfirmationDialog">
+
+        </activity>
+        <activity android:name=".ValidateBinActivity"
+            android:theme="@style/SaveConfirmationDialog">
+
+        </activity>
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="fullSensor"
+            tools:replace="screenOrientation"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 
 </manifest>

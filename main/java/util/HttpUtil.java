@@ -55,6 +55,10 @@ public class HttpUtil {
         wareHouseNumber = whn;
     }
 
+    public static void setClientInfo(String clientInfo) {
+        server_client_name = clientInfo;
+    }
+
     public static String getUserName() {
         return username;
     }
@@ -120,7 +124,7 @@ public class HttpUtil {
 
     public static String getPIItemURL(String piDocUuid, String woNumber) {
         String entityProperties = "&$skip=0&$top=1000&$select=StorageBin%2cStorageBinEmpty%2cHandlingUnit%2cHandlingUnitComplete%2cHandlingUnitEmpty%2cHandlingUnitMissing%2cProduct%2cProductDescription%2cBatch%2cProductQuantity%2cProductQuantityUoM%2cPhysicalInventoryItemStatusDescription%2cParentNodeGUID%2cItemNodeGUID%2cSubHandlingUnitComplete%2cPhysicalInventoryItemNumber%2cSubHandlingUnitEmpty%2cPhysicalInventoryItemStatus%2cSubHandlingUnitMissing%2cPhysicalInventoryItemCategory%2cSubHandlingUnit%2cBookQuantity%2cBookQuantityUoM%2cStockType%2cStockTypeDescription%2cOwner%2cOwnerDescription%2cPartyEntitledToDispose%2cPartyEntitledToDisposeDescription%2cUsage%2cUsageDescription%2cSpecialStockType%2cSpecialStockTypeDescription%2cSpecialStockExternalNumber%2cSpecialStockItemNumber%2cShelfLifeExpirationDate%2cGoodsReceiptDate%2cCountryOfOrigin%2cCountry";
-        String navigation_property = "/PIWOSet(PhysicalInventoryDocumentGUID=guid'" + piDocUuid + "',WarehouseOrder='" + woNumber + "',Warehouse='" + wareHouseNumber + "')/WhoToPIItemList";
+        String navigation_property = "PIWOSet(PhysicalInventoryDocumentGUID=guid'" + piDocUuid + "',WarehouseOrder='" + woNumber + "',Warehouse='" + wareHouseNumber + "')/WhoToPIItemList";
         return hostName + navigation_property + server_client_name + entityProperties + "&$format=json";
     }
 

@@ -139,6 +139,7 @@ public class WOListActivity extends AppCompatActivity  implements View.OnClickLi
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    //TODO: log info should exist for displaying status of saving
                     Util.showProgressDialog(progressDialog, false);
                     adapter.clear();
                     LocalStorageUtil.deleteWO(WOListActivity.this, arrayList.get(0));
@@ -183,7 +184,7 @@ public class WOListActivity extends AppCompatActivity  implements View.OnClickLi
             showUnsavedWOData();
             saveAllButton.setVisibility(View.VISIBLE);
             saveAllButton.setOnClickListener(this);
-            woBinding.woListTitle.setText("Unsaved Warehouse Orders(" + arrayList.size() + ")");
+            woBinding.woListTitle.setText("Unsaved Warehouse Orders (" + arrayList.size() + ")");
         } else {
             if(saveAllButton.getVisibility() == View.VISIBLE) {
                 saveAllButton.setVisibility(View.INVISIBLE);

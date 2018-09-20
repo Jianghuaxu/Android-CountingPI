@@ -23,6 +23,8 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/product_desc_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -183,6 +185,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:src="@drawable/uom_next" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/no_item_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/no_item"
+                        android:gravity="center"
+                        android:text="Storage Bin empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
             </LinearLayout>
         </android.support.v7.widget.CardView>
