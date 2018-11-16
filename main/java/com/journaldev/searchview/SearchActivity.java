@@ -1,6 +1,7 @@
 package com.journaldev.searchview;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,8 +14,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -76,7 +83,7 @@ import static com.journaldev.searchview.LogonActivity.MY_PREFERENCES;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener{
     private ActivitySearchBinding activitySearchBinding;
-    private DrawerLayout drawerLayout;
+    private DrawerLayout leftDrawerLayout;
 
     //handle save warehouse number
     private final String WAREHOUSE_NUMBER = "WAREHOUSE_NUMBER";
@@ -108,6 +115,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     //handle menu
     private Menu menu;
 
+    //NFC related
+    NfcAdapter mAdapter;
+    PendingIntent mPendingIntent;
+
+
     //handle piItems List httpRequest
     final ArrayList<WarehouseOrderCount> woCountList = new ArrayList<>();
     final ArrayList<WOResponseModel> woCountListResponseData = new ArrayList<>();
@@ -127,6 +139,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             actionBar.setHomeAsUpIndicator(R.drawable.menu_btn);
         }
 
+        /*//handle NFC related settings
+        mAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mAdapter == null) {
+            //nfc not support your device.
+            return;
+        }
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
+                getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);*/
+
+
         activitySearchBinding.warehouseOrderBarcodeScanner.setOnClickListener(this);
 
         //add listener to switch(select if guidedMode)
@@ -134,7 +156,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         guidedModeSwitch.setOnCheckedChangeListener(this);
         //initialize drawerlayout
-        drawerLayout = activitySearchBinding.drawerLayout;
+        leftDrawerLayout = activitySearchBinding.drawerLayout;
 
         //read from local file
         checkUnsavedWO();
@@ -163,7 +185,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     intent.putExtra("handleLocal", "true");
                     startActivityForResult(intent, 1);
                 }
-                drawerLayout.closeDrawers();
+                leftDrawerLayout.closeDrawers();
                 return true;
             }
         });
@@ -243,7 +265,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
                 }
             }
-
         }
 
     }
@@ -321,12 +342,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                BadgeFactory.create(this)
-                        .setWidthAndHeight(1,1)
-                        .setBadgeBackground(Color.RED)
-                        .setShape(BadgeView.SHAPE_CIRCLE)
-                        .bind(findViewById(item.getItemId()));
-                drawerLayout.openDrawer(activitySearchBinding.navView);
+                leftDrawerLayout.openDrawer(activitySearchBinding.navView);
                 checkUnsavedWO();
                 break;
         }
@@ -424,6 +440,53 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         });
+    }
+
+/*    @Override
+    protected void onResume() {
+        super.onResume();
+        //mAdapter.enableForegroundDispatch(this, mPendingIntent, null, null);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        *//***if (mAdapter != null) {
+           mAdapter.disableForegroundDispatch(this);
+        }***//*
+    }*/
+
+/*    @Override
+    protected void onNewIntent(Intent intent) {
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        GetDataFromTag(tag, intent);
+    }*/
+
+    private void GetDataFromTag(Tag tag, Intent intent) {
+        Ndef ndef = Ndef.get(tag);
+        try {
+            ndef.connect();
+//            txtType.setText(ndef.getType().toString());
+//            txtSize.setText(String.valueOf(ndef.getMaxSize()));
+//            txtWrite.setText(ndef.isWritable() ? "True" : "False");
+            Parcelable[] messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+            if (messages != null) {
+                NdefMessage[] ndefMessages = new NdefMessage[messages.length];
+                for (int i = 0; i < messages.length; i++) {
+                    ndefMessages[i] = (NdefMessage) messages[i];
+                }
+                NdefRecord record = ndefMessages[0].getRecords()[0];
+
+                byte[] payload = record.getPayload();
+                String text = new String(payload);
+                Log.e("tag", "vahid" + text);
+                ndef.close();
+
+            }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Cannot Read From Tag.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void onDocListReceived() {
