@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.journaldev.searchview.databinding.ActivityCountBinding;
@@ -81,6 +82,12 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         //set toolbar
         Toolbar toolbar = (Toolbar)countBinding.getRoot().findViewById(R.id.toolbar_count);
         setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!= null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.header_nav_back);
+        }
 
         receivedIntent = getIntent();
         /***
@@ -461,6 +468,9 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             case R.id.add_quantity:
                 //handleSaveBinItems();
                 break;
+            case android.R.id.home:
+                finish();
+                break;
         }
         return true;
     }
@@ -490,7 +500,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
         warehouseOrderCount.binArrayList = binArrayListSaveLocal;
         LocalStorageUtil.saveWOToFile(CountActivity.this, woNumber, new Gson().toJson(warehouseOrderCount, WarehouseOrderCount.class));
         //get the next storage bin, just like the final step while saving to backend.
-        Toast.makeText(CountActivity.this, "Save to local done", Toast.LENGTH_LONG).show();
+        Snackbar.make(countBinding.getRoot(), "Save to local done", Snackbar.LENGTH_LONG).show();
         WarehouseOrderCount nextWarehouseOrderCount = null;
         if(WOCountHelper.getIsGuidedMode()) {
             //only in this mode, there would be multiple WOs
@@ -615,7 +625,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(CountActivity.this, "Save failure", Toast.LENGTH_LONG).show();
+                    Snackbar.make(countBinding.getRoot(), "Save failure", Snackbar.LENGTH_LONG).show();
                 }
             });
         }else {
@@ -624,7 +634,7 @@ public class CountActivity extends AppCompatActivity implements View.OnClickList
                 public void run() {
                     LocalStorageUtil.deleteWO(CountActivity.this, woNumber);
                     WarehouseOrderCount warehouseOrderCount = null;
-                    Toast.makeText(CountActivity.this, "Save successfully", Toast.LENGTH_LONG).show();
+                    Snackbar.make(countBinding.getRoot(), "Save successfully", Snackbar.LENGTH_LONG).show();
                     //TODO: in Guided_Mode, check if other WO exists, if yes then set arraylist in StorageBinHelper class
                     if(WOCountHelper.getIsGuidedMode()) {
                         warehouseOrderCount = WOCountHelper.getNextWarehouseOrder();

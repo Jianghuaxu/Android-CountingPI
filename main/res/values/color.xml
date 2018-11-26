@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="pink">#ffc0cb</color> <!-- 粉红色 -->
+    <color name="pink">#ffc0cb</color>
     <color name="main_background">#427CAC</color>
+
+    <!-- Main Colors -->
+    <color name="sapUiBaseColor">#3F5161</color> <!-- App bar background -->
+    <color name="sapUiBaseBG">#FAFAFA</color>
+    <color name="sapUiPageFooterBackground">#2F3C48</color>
+    <color name="sapUiListHeaderBackground">#F7F7F7</color>
+
+    <!-- Text Colors -->
+    <color name="sapUiBaseText">#333333</color> <!-- Text on light background -->
+    <color name="sapUiContentLabelColor">#666666</color> <!-- Labels, bylines, descriptions -->
+    <color name="sapUiLink">#0070B1</color> <!-- Bottom nav bar background -->
+
+    <color name="Indicator">#0070B1</color> <!-- Progress Indicator -->
+    <color name="Container">#323232</color>
+    <color name="Text_button">#CAE4FB</color> <!-- snackbar -->
+
 </resources>

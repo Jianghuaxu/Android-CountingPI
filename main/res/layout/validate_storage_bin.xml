@@ -85,9 +85,10 @@
                 android:textAllCaps="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/main_background"
-                android:background="@drawable/bg_save_conf_button"
-                android:text="Confirm" />
+                android:textColor="@color/white"
+                android:layout_gravity="right"
+                android:background="@color/Indicator"
+                android:text="CONFIRM" />
 
         </LinearLayout>
 

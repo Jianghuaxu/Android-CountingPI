@@ -38,10 +38,18 @@
         <activity android:name=".MainActivity"
             android:launchMode="singleTop"
             android:label="PI List">
+            <intent-filter >
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".WOListActivity"
             android:launchMode="singleTop"
             android:label="WO List">
+            <intent-filter >
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 
         </activity>
         <activity android:name=".CountActivity"

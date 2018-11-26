@@ -1,14 +1,18 @@
 package com.journaldev.searchview;
 
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +32,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gson.PIHeaders;
 import gson.PIItems;
@@ -72,23 +78,29 @@ public class MainActivity extends AppCompatActivity {
         String piListUrl = intent.getStringExtra("PIlist_Url");
         getPIList(piListUrl, false);
 
+        //set toolbar
+        Toolbar toolbar = activityMainBinding.toolbarPilist;
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!= null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.header_nav_back);
+        }
+
 //        piDocAdapterEntry = new PIDoc("6000000639", 1);
 //        arrayList.add(piDocAdapterEntry);
 
         //activityMainBinding.search.setActivated(true);
-        activityMainBinding.search.setQueryHint("Search PI Document: ");
         //activityMainBinding.search.onActionViewExpanded();
         //activityMainBinding.search.setIconified(false);
-        activityMainBinding.search.clearFocus();
+        //activityMainBinding.search.clearFocus();
         //hideKeyboard();
 
         initDialog();
         initProcessDialog();
-        if(!activityMainBinding.search.getQuery().equals("")) {
-            activityMainBinding.search.setQuery("", true);
-            activityMainBinding.search.clearFocus();
-        }
-        activityMainBinding.search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+/*        activityMainBinding.search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
@@ -101,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return false;
             }
-        });
+        });*/
     }
 
     @Override
@@ -111,18 +123,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-//        if(!activityMainBinding.search.getQuery().equals("")) {
-//            Log.d("CountActivity", "OnResume");
-//            activityMainBinding.search.setQuery("", true);
-//            activityMainBinding.search.clearFocus();
-//        }
-//        Intent intent = getIntent();
-//        String piListUrl = intent.getStringExtra("PIlist_Url");
-//        getPIList(piListUrl, true);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_pilist, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_pi).getActionView();
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconified(false);
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setQueryRefinementEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterList(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterList(newText);
+                return false;
+            }
+        });
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
+    }
 
     private void getPIList(String piListUrl, final boolean refreshIndicator) {
         HttpUtil.sendOkHttpRequest(piListUrl, new Callback() {
@@ -236,7 +270,24 @@ public class MainActivity extends AppCompatActivity {
             onResponseEmpty();
         }
 
+    }
 
+    private void filterList(String query) {
+        Log.d("Query", query);
+        ArrayList<PIDoc> results = new ArrayList<>();
+        if(query.equals("")) {
+            results = arrayList;
+        } else {
+            Pattern p = Pattern.compile(query);
+            for(int i = 0; i < arrayList.size(); i++) {
+                Matcher matcher = p.matcher(arrayList.get(i).getPIDocNumber());
+                if(matcher.find()) {
+                    results.add(arrayList.get(i));
+                }
+            }
+        }
+        adapter = new PIDocAdapter(MainActivity.this, R.layout.pidoclist_item, results);
+        activityMainBinding.listView.setAdapter(adapter);
     }
 
     public void initDialog(){
@@ -262,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case 1:
-                Toast.makeText(getApplication(), "ONActivityResult", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplication(), "ONActivityResult", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

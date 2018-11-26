@@ -2,16 +2,22 @@ package com.journaldev.searchview;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -26,6 +32,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.journaldev.searchview.databinding.ActivityWolistBinding;
 
@@ -46,9 +54,9 @@ import util.LocalStorageUtil;
 import util.Util;
 
 public class WOListActivity extends AppCompatActivity  implements View.OnClickListener{
+    final List<PIWOList> woList = new ArrayList<>();
     ArrayList<String> arrayList = new ArrayList<>();
     ActivityWolistBinding woBinding;
-    ImageView warehouse_pic;
     String url;
     String username;
     String password;
@@ -59,17 +67,72 @@ public class WOListActivity extends AppCompatActivity  implements View.OnClickLi
     boolean hasError = false;
     ProgressDialog progressDialog;
 
-    //handle source activity
-    private Intent receivedIntent;
-
     //handle unsaved WOs
     boolean isUnsavedWOScenario = false;
 
-    OkHttpClient client;
-
     WOListItemAdapter<String> adapter;
+    //handle source activity
+    private Intent receivedIntent;
 
-    final List<PIWOList> woList = new ArrayList<>();
+    //mock data
+    List<String> piwoListsMock;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        woBinding = DataBindingUtil.setContentView(WOListActivity.this, R.layout.activity_wolist);
+
+        //set toolbar
+        Toolbar toolbar = woBinding.toolbarWolist;
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!= null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.header_nav_back);
+        }
+
+        receivedIntent = getIntent();
+        //get intent data from last activity
+        Button saveAllButton = woBinding.saveUnsavedWo;
+        if(receivedIntent.getStringExtra("handleLocal").equals("true")) {
+            isUnsavedWOScenario = true;
+            //handle unsaved WO
+            showUnsavedWOData();
+            saveAllButton.setVisibility(View.VISIBLE);
+            saveAllButton.setOnClickListener(this);
+            //woBinding.woListTitle.setText("Unsaved Warehouse Orders (" + arrayList.size() + ")");
+        } else {
+            if(saveAllButton.getVisibility() == View.VISIBLE) {
+                saveAllButton.setVisibility(View.INVISIBLE);
+            }
+            url = receivedIntent.getStringExtra("url") + "&$format=json";
+            sendRequestsWithOkHttp(url);
+        }
+
+        woBinding.secondListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(WOListActivity.this, CountActivity.class);
+                intent.putExtra("WO_Number", arrayList.get(i));
+                //we differentiate between unsaved-Scenario & normal Scenario
+                if(isUnsavedWOScenario) {
+                    intent.putExtra("handleLocal", "true");
+                } else {
+                    intent.putExtra("handleLocal", "false");
+                    //for normal scenario WONumber and PI Guid is needed to get piItems from backend, whereas for unsavedWO, only WONumber is necessary
+                    PIWOList wo_selected = woList.get(i);
+                    String piDocUuid = String.valueOf(wo_selected.PhysicalInventoryDocumentGUID);
+                    intent.putExtra("PI_DOC_UUID", piDocUuid);
+                    intent.putExtra("Count_date", wo_selected.CountDate);
+                }
+                intent.putExtra("isGuidedMode", "false");
+
+                startActivityForResult(intent, 1);
+            }
+        });
+    }
+
 
 
     @Override
@@ -166,64 +229,73 @@ public class WOListActivity extends AppCompatActivity  implements View.OnClickLi
         }
     }
 
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        woBinding = DataBindingUtil.setContentView(WOListActivity.this, R.layout.activity_wolist);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_wolist, menu);
 
-        //set toolbar
-        Toolbar toolbar = woBinding.toolbarWolist;
-        setSupportActionBar(toolbar);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_wo).getActionView();
 
-        //get intent data from last activity
-        receivedIntent = getIntent();
-        Button saveAllButton = woBinding.saveUnsavedWo;
-        if(receivedIntent.getStringExtra("handleLocal").equals("true")) {
-            isUnsavedWOScenario = true;
-            //handle unsaved WO
-            showUnsavedWOData();
-            saveAllButton.setVisibility(View.VISIBLE);
-            saveAllButton.setOnClickListener(this);
-            woBinding.woListTitle.setText("Unsaved Warehouse Orders (" + arrayList.size() + ")");
-        } else {
-            if(saveAllButton.getVisibility() == View.VISIBLE) {
-                saveAllButton.setVisibility(View.INVISIBLE);
-            }
-            url = receivedIntent.getStringExtra("url") + "&$format=json";
-            sendRequestsWithOkHttp(url);
-        }
-
-
-
-        woBinding.secondListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconified(false);
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setQueryRefinementEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(WOListActivity.this, CountActivity.class);
-                intent.putExtra("WO_Number", arrayList.get(i));
-                //we differentiate between unsaved-Scenario & normal Scenario
-                if(isUnsavedWOScenario) {
-                    intent.putExtra("handleLocal", "true");
-                } else {
-                    intent.putExtra("handleLocal", "false");
-                    //for normal scenario WONumber and PI Guid is needed to get piItems from backend, whereas for unsavedWO, only WONumber is necessary
-                    PIWOList wo_selected = woList.get(i);
-                    String piDocUuid = String.valueOf(wo_selected.PhysicalInventoryDocumentGUID);
-                    intent.putExtra("PI_DOC_UUID", piDocUuid);
-                    intent.putExtra("Count_date", wo_selected.CountDate);
-                }
-                intent.putExtra("isGuidedMode", "false");
+            public boolean onQueryTextSubmit(String query) {
+                //TODO  once test is changed, the corresponding List should update immediately.
 
-                startActivityForResult(intent, 1);
+                Snackbar.make(woBinding.getRoot(), query, Snackbar.LENGTH_SHORT).show();
+                Log.d("Source", "OnCreateOptionsMenu");
+                filterList(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Snackbar.make(woBinding.getRoot(), newText, Snackbar.LENGTH_SHORT).show();
+                filterList(newText);
+                return false;
             }
         });
+        return true;
+    }
+
+    private void filterList(String query) {
+        Log.d("Query", query);
+        List<String> results = new ArrayList<>();
+        if(query.equals("")) {
+            results = arrayList;
+        } else {
+            Pattern p = Pattern.compile(query);
+            for(int i = 0; i < arrayList.size(); i++) {
+                Matcher matcher = p.matcher(arrayList.get(i));
+                if(matcher.find()) {
+                    results.add(arrayList.get(i));
+                }
+            }
+        }
+        adapter = new WOListItemAdapter<>(WOListActivity.this, R.layout.wolist_item, results);
+        woBinding.secondListView.setAdapter(adapter);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
             case 1:
-                Toast.makeText(WOListActivity.this, "Counting finished", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(WOListActivity.this, "Counting Cancelled", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
     }
 
     public void sendRequestsWithOkHttp(String url){
@@ -271,7 +343,7 @@ public class WOListActivity extends AppCompatActivity  implements View.OnClickLi
             WONumber = list.get(i).WarehouseOrder;
             arrayList.add(WONumber);
         }
-        woBinding.woListTitle.setText("Warehouse Orders(" + arrayList.size() + ")");
+        //woBinding.woListTitle.setText("Warehouse Orders(" + arrayList.size() + ")");
         adapter = new WOListItemAdapter<String>(WOListActivity.this, R.layout.wolist_item, arrayList);
         woBinding.secondListView.setAdapter(adapter);
     }

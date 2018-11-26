@@ -8,11 +8,12 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar_wolist"
             android:layout_width="match_parent"
             android:layout_height="55dp"
-            android:background="#427CAC"
+            android:background="@color/sapUiBaseColor"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
     </android.support.design.widget.AppBarLayout>
@@ -25,23 +26,6 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <android.support.v7.widget.SearchView
-                android:id="@+id/search_wo"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:clickable="true" />
-
-            <TextView
-                android:id="@+id/wo_list_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="Warehouse Orders (0)"
-                android:textColor="#427CAC"
-                android:textSize="23sp" />
 
             <ListView
                 android:id="@+id/second_listView"

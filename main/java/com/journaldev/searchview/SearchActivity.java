@@ -349,12 +349,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         return true;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
-        return true;
-    }
-
     private void attemptSearchPIList() {
         //handle warehouse number input, which is mandatory
         String whn = activitySearchBinding.warehouseNumber.getText().toString();
